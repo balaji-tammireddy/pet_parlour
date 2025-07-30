@@ -24,13 +24,7 @@ export async function POST(request: NextRequest) {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const newUser = new User({
-      name,
-      email,
-      mobile,
-      password: hashedPassword,
-    });
-
+    const newUser = new User({ name, email, mobile, password: hashedPassword });
     const savedUser = await newUser.save();
 
     (async () => {
@@ -52,11 +46,25 @@ export async function POST(request: NextRequest) {
     const token = jwt.sign(tokenData, process.env.JWT_SECRET!, { expiresIn: "1d" });
 
     const response = NextResponse.json(
-      { message: "User registered successfully", success: true },
+      {
+        message: "User registered successfully",
+        success: true,
+        user: {
+          id: savedUser._id.toString(),
+          name: savedUser.name,
+          email: savedUser.email,
+        },
+      },
       { status: 200 }
     );
 
-    response.cookies.set("token", token, { httpOnly: true });
+    response.cookies.set("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 24 * 60 * 60,
+    });
 
     return response;
   } catch (error: any) {

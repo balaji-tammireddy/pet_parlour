@@ -12,28 +12,18 @@ export async function POST(request: NextRequest) {
     const { email, password } = reqBody;
 
     if (!email || !password) {
-      return NextResponse.json(
-        { error: "Please fill all the fields" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Please fill all the fields" }, { status: 400 });
     }
 
     const user = await User.findOne({ email });
 
     if (!user) {
-      return NextResponse.json(
-        { error: "User does not exist" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "User does not exist" }, { status: 400 });
     }
 
     const validPassword = await bcrypt.compare(password, user.password);
-
     if (!validPassword) {
-      return NextResponse.json(
-        { error: "Invalid password" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid password" }, { status: 400 });
     }
 
     const tokenData = {
@@ -42,15 +32,14 @@ export async function POST(request: NextRequest) {
       email: user.email,
     };
 
-    const token = jwt.sign(tokenData, process.env.JWT_SECRET!, {
-      expiresIn: "1d",
-    });
+    const token = jwt.sign(tokenData, process.env.JWT_SECRET!, { expiresIn: "1d" });
 
     const response = NextResponse.json(
       {
         message: "Login successful",
         success: true,
         user: {
+          id: user._id.toString(),
           name: user.name,
           email: user.email,
         },
@@ -63,7 +52,7 @@ export async function POST(request: NextRequest) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",
-      maxAge: 24 * 60 * 60, // 1 day
+      maxAge: 24 * 60 * 60,
     });
 
     return response;

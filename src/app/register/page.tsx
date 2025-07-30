@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -46,9 +47,16 @@ export default function RegisterPage() {
         password: user.password,
       });
 
-      toast.success("User registered successfully");
-      console.log("Register success", response.data);
-      router.push("/signin");
+      const registeredUser = response.data.user;
+      if (!registeredUser || !registeredUser.id) {
+        throw new Error("User ID missing from server response");
+      }
+
+      localStorage.setItem("user", JSON.stringify(registeredUser));
+
+      toast.success("Registration successful! Redirecting to your dashboard...");
+
+      router.push(`/${registeredUser.id}`);
     } catch (error: any) {
       toast.error(error.response?.data?.error || "Failed to register user");
       console.error("Register error:", error);
@@ -125,7 +133,9 @@ export default function RegisterPage() {
                   id="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
                   value={user.confirmPassword}
-                  onChange={(e) => setUser({ ...user, confirmPassword: e.target.value })}
+                  onChange={(e) =>
+                    setUser({ ...user, confirmPassword: e.target.value })
+                  }
                   disabled={loading}
                   required
                 />
@@ -137,7 +147,7 @@ export default function RegisterPage() {
                 </div>
               </div>
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full cursor-pointer" disabled={loading}>
               {loading ? "Creating Account..." : "Register"}
             </Button>
             <p className="text-center text-sm text-muted-foreground">

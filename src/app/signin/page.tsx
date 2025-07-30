@@ -38,11 +38,17 @@ export default function SigninPage() {
       setLoading(true);
 
       const response = await axios.post("/api/users/signin", credentials);
+
       toast.success("Login successful!");
+
+      const userId = response.data.user?.id;
+      if (!userId) {
+        throw new Error("User ID missing from server response");
+      }
 
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
-      router.push("/dashboard");
+      router.push(`/${userId}`);
     } catch (error: any) {
       toast.error(error.response?.data?.error || "Login failed");
       console.error("Login error:", error);
@@ -102,19 +108,18 @@ export default function SigninPage() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full cursor-pointer" disabled={loading}>
               {loading ? "Signing In..." : "Sign In"}
             </Button>
 
-            <p className="text-center text-sm text-muted-foreground">
-                <span
-                    onClick={() => router.push("/forgot-password")}
-                    className="cursor-pointer text-primary hover:underline"
-                >
-                    Forgot Password?
-                </span>
+            <p className="text-center text-sm text-muted-foreground mt-2">
+              <span
+                onClick={() => router.push("/forgot-password")}
+                className="cursor-pointer text-primary hover:underline"
+              >
+                Forgot Password?
+              </span>
             </p>
-
 
             <p className="text-center text-sm text-muted-foreground">
               Don&apos;t have an account?{" "}
