@@ -68,3 +68,21 @@ export const sendResetPasswordEmail = async (to: string, resetLink: string) => {
 
   await transporter.sendMail(mailOptions);
 };
+
+export async function sendContactConfirmationToUser(name: string, email: string) {
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email, 
+    subject: "Thank you for contacting The Pet Parlour!",
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+        <h2>Hello ${name}!</h2>
+        <p>Thank you for reaching out to <strong>The Pet Parlour</strong>.</p>
+        <p>We have received your request, and our team will get back to you as soon as possible.</p>
+        <p>Best regards,<br>The Pet Parlour Team</p>
+      </div>
+    `,
+  };
+
+  await transporter.sendMail(mailOptions);
+}
