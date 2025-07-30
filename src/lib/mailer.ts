@@ -38,3 +38,33 @@ export const sendWelcomeEmail = async (to: string, name: string) => {
 
   await transporter.sendMail(mailOptions);
 };
+
+export const sendResetPasswordEmail = async (to: string, resetLink: string) => {
+  const mailOptions = {
+    from: `"The Pet Parlour" <${process.env.EMAIL_USER}>`,
+    to,
+    subject: "Reset Your Password - The Pet Parlour",
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
+        <div style="text-align: center;">
+          <img src="${process.env.NEXT_PUBLIC_BASE_URL}/logo.png" alt="The Pet Parlour" width="120" style="margin-bottom: 20px;" />
+        </div>
+        <h2 style="color: #333;">Reset Your Password</h2>
+        <p>Hello,</p>
+        <p>You requested to reset your password. Click the button below to reset it. This link is valid for <strong>15 minutes</strong>.</p>
+        <a href="${resetLink}" 
+          style="display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px;">
+          Reset Password
+        </a>
+        <p style="margin-top: 20px; color: #555;">
+          If you didn't request this, you can safely ignore this email.
+        </p>
+        <p style="margin-top: 20px; font-size: 12px; color: #aaa;">
+          &copy; ${new Date().getFullYear()} The Pet Parlour. All rights reserved.
+        </p>
+      </div>
+    `,
+  };
+
+  await transporter.sendMail(mailOptions);
+};
