@@ -3,6 +3,7 @@ import { connect } from "@/dbSetup/dbSetup";
 import User from "@/models/userModel";
 import Pet from "@/models/petModel";
 import Booking from "@/models/bookingModel";
+import Ticket from "@/models/ticketModel";
 import jwt from "jsonwebtoken";
 
 connect();
@@ -13,7 +14,6 @@ export async function GET(
 ) {
   try {
     const { userId } = await context.params;
-
     const token = req.cookies.get("token")?.value;
 
     if (!token) {
@@ -40,11 +40,14 @@ export async function GET(
       date: { $gte: today },
     }).sort({ date: 1 });
 
+    const tickets = await Ticket.find({ userId }).sort({ createdAt: -1 });
+
     return NextResponse.json({
       success: true,
       user,
       pets,
       bookings,
+      tickets,
     });
   } catch (error: any) {
     console.error("Dashboard fetch error:", error);
